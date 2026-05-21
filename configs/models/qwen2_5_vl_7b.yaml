@@ -1,0 +1,7 @@
+key: qwen2_5_vl_7b
+family: qwen2_5_vl
+hf_id: Qwen/Qwen2.5-VL-7B-Instruct
+dtype: bfloat16
+device_map: auto
+coord_space: pixel         # Qwen2.5-VL-7B-Instruct (base, not OS-Atlas-tuned) emits pixel coords
+supports_attention_capture: true

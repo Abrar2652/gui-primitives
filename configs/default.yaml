@@ -1,0 +1,20 @@
+# Global defaults. Experiment configs inherit and override these.
+seed: 13
+paths:
+  runs_dir: runs
+  ui_corpus: data/ui_corpus/corpus.jsonl     # source UI-element corpus (see data/README.md)
+  screenspot_pro: data/screenspot_pro        # ScreenSpot-Pro root
+  osworld_slice: data/osworld/slice.jsonl    # frozen 50-80 task slice ids
+benchmark:
+  n_items: 1000          # total synthesized GUI-Primitives items
+  human_verified_n: 200  # size of the human-verified core split
+  min_elements_per_image: 4
+  coord_space: pixel     # how ground truth is stored: pixel | norm
+eval:
+  bootstrap_resamples: 2000
+  bootstrap_ci: 0.95
+  mc_correction: holm    # multiple-comparison correction: holm | bonferroni
+inference:
+  max_new_tokens: 128
+  temperature: 0.0       # greedy: determinism is required for reproducibility
+  batch_size: 8

@@ -1,0 +1,10 @@
+key: llama32_vision_90b_ollama
+family: ollama
+hf_id: llama3.2-vision:90b          # Meta Llama-3.2-Vision 90B (largest open VLM in roster)
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  base_url: http://localhost:11434
+  timeout: 600                      # 90B is slow per call

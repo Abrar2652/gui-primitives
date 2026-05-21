@@ -1,0 +1,7 @@
+key: os_atlas_base_7b
+family: qwen2_vl                   # OS-Atlas-Base-7B is fine-tuned from Qwen2-VL-7B
+hf_id: OS-Copilot/OS-Atlas-Base-7B
+dtype: bfloat16
+device_map: auto
+coord_space: norm_1000             # outputs normalized [0,1000] bboxes
+supports_attention_capture: false  # image-token span unverified for Qwen2-VL base

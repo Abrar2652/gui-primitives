@@ -1,0 +1,10 @@
+key: moondream_ollama
+family: ollama
+hf_id: moondream:latest            # tiny ~1.8B
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  base_url: http://localhost:11434
+  timeout: 120

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "GUI-Primitives: A Diagnostic Benchmark and Training-Free Interventions for Spatial-Primitive Failures in VLM-based Computer-Use Agents"
+message: "If you use this work, please cite it as below."
+type: software
+authors:
+  - family-names: "[Author]"
+    given-names: "[First Author]"
+abstract: >
+  GUI-Primitives is a controlled, minimal-pair benchmark over seven elementary
+  spatial primitives (relative-position horizontal/vertical, containment,
+  list-ordinal, alignment, proximity, occlusion). Across 19 vision-language
+  models, per-primitive competence rank-orders ScreenSpot-Pro grounding
+  success (Spearman rho=+0.736, p=0.015, n=10). Set-of-Mark visual prompting
+  recovers 35-42 accuracy points; primitive-aware CoT and activation steering
+  show no robust effect. Human verification by 5 annotators yields Fleiss
+  kappa=0.94 (validity) / 0.79 (target), with a 65-point ceiling gap on the
+  cleaned 185-item core.
+preferred-citation:
+  type: conference-paper
+  title: "GUI-Primitives: A Diagnostic Benchmark and Training-Free Interventions for Spatial-Primitive Failures in VLM-based Computer-Use Agents"
+  collection-title: "Proceedings of EMNLP 2026"
+  year: 2026
+  authors:
+    - family-names: "[Author]"
+      given-names: "[First Author]"

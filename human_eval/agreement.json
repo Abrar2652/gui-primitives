@@ -1,0 +1,21 @@
+{
+  "n_annotators": 5,
+  "n_common_items": 196,
+  "fleiss_validity": 0.9422113022113064,
+  "fleiss_answer": 0.7871416159861221,
+  "human_accuracy": 0.9693877551020408,
+  "n_invalid": 11,
+  "invalid_items": [
+    "synthetic-103-1",
+    "synthetic-267-0",
+    "ui_vision-87-1",
+    "synthetic-352-1",
+    "ui_vision-38-0",
+    "synthetic-6-0",
+    "synthetic-289-1",
+    "ui_vision-45-0",
+    "synthetic-472-1",
+    "synthetic-61-0",
+    "synthetic-148-1"
+  ]
+}

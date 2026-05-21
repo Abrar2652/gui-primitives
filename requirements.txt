@@ -1,0 +1,24 @@
+# Core scientific stack (pure-python parts of the repo run with just these)
+numpy>=1.26
+scipy>=1.11
+pandas>=2.1
+statsmodels>=0.14
+pyyaml>=6.0
+pillow>=10.0
+matplotlib>=3.8
+tqdm>=4.66
+jsonschema>=4.20
+
+# Model inference (needed on the cluster; heavy)
+torch>=2.3
+transformers>=4.49
+accelerate>=0.34
+einops>=0.7
+qwen-vl-utils>=0.0.8
+sentencepiece>=0.2
+
+# Closed-model comparison ($50 budget; optional)
+openai>=1.40
+
+# Dev / testing
+pytest>=8.0

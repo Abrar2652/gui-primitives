@@ -1,0 +1,17 @@
+inherit: ../default.yaml
+name: diagnostic
+description: Per-primitive failure profiling across VLMs on GUI-Primitives.
+benchmark:
+  primitives: [rel_pos_horizontal, rel_pos_vertical, containment,
+               list_ordinal, alignment, proximity, occlusion]
+controls:
+  run_text_only: true        # instruction without the screenshot
+  run_shuffled: true         # screenshot paired with a mismatched instruction
+  run_blur: true             # heavily blurred screenshot
+  run_position_shift: true   # same target rendered at canonical canvas positions
+models:                      # evaluated in the headline diagnostic table
+  - configs/models/qwen2_5_vl_7b.yaml
+  - configs/models/internvl3_8b.yaml
+  - configs/models/llama32_11b_vision.yaml
+  - configs/models/qwen2_5_vl_72b.yaml
+  - configs/models/closed_gpt4o_mini.yaml

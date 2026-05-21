@@ -1,0 +1,13 @@
+inherit: ../default.yaml
+name: diagnostic
+description: Set-of-Mark intervention only (Qwen).
+benchmark:
+  primitives: [rel_pos_horizontal, rel_pos_vertical, containment,
+               list_ordinal, alignment, proximity, occlusion]
+interventions:
+  baseline:    {enabled: false}
+  cot:         {enabled: false}
+  set_of_mark: {enabled: true, marker: numbered}
+  steering:    {enabled: false}
+models:
+  - configs/models/qwen2_5_vl_7b.yaml

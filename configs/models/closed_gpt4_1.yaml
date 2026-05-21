@@ -1,0 +1,11 @@
+key: closed_gpt4_1
+family: closed_api
+hf_id: gpt-4.1                     # OpenAI's GPT-4.1 (tier-up from gpt-4o-mini)
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  provider: openai
+  env_key: OPENAI_API_KEY
+  max_items: 2000

@@ -1,0 +1,11 @@
+key: closed_claude_opus
+family: closed_api
+hf_id: claude-opus-4-7             # Anthropic Opus 4.7 (vision + reasoning; no temperature param)
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  provider: anthropic
+  env_key: ANTHROPIC_API_KEY
+  max_items: 2000                   # 196-item core only (option E budget)

@@ -1,0 +1,7 @@
+key: paligemma2_3b
+family: paligemma2                 # Google PaliGemma 2 (purpose-built for visual grounding)
+hf_id: google/paligemma2-3b-mix-448
+dtype: bfloat16
+device_map: auto
+coord_space: pixel
+supports_attention_capture: false

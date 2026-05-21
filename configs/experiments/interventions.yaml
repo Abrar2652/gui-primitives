@@ -1,0 +1,22 @@
+inherit: ../default.yaml
+name: interventions
+description: Training-free interventions on GUI-Primitives and ScreenSpot-Pro.
+interventions:
+  baseline: {enabled: true}
+  cot:           {enabled: true}                       # primitive-aware chain-of-thought
+  set_of_mark:   {enabled: true, marker: numbered}      # GUI Set-of-Mark overlay
+  steering:
+    enabled: true              # SteerVLM-style additive residual-stream steering
+    layers: [12, 13, 14, 15, 16, 17, 18, 19]   # decoder layers to hook; verify per model
+    alpha: 4.0                 # magnitude added to residual stream
+    n_contrast: 200            # max scored records used to derive +/- vectors
+heads:
+  probe_split: human_verified  # split used to identify localization heads
+  top_k: 16                    # top-K heads saved (reported alongside steering)
+  attention_entropy_quantile: 0.25
+models:
+  # Only Qwen2.5-VL has a verified image-token span for attention capture (heads).
+  # Steering uses the residual stream and does not require attention capture, so
+  # InternVL/Llama can be added back here for steering-only runs once their token
+  # spans are verified in hf_vlm._image_token_span.
+  - configs/models/qwen2_5_vl_7b.yaml

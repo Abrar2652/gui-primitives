@@ -1,0 +1,5 @@
+key: dummy
+family: dummy                     # deterministic stub model for smoke tests / CI
+hf_id: null
+coord_space: pixel
+supports_attention_capture: false

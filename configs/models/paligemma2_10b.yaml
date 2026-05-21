@@ -1,0 +1,7 @@
+key: paligemma2_10b
+family: paligemma2
+hf_id: google/paligemma2-10b-mix-448
+dtype: bfloat16
+device_map: auto
+coord_space: pixel
+supports_attention_capture: false

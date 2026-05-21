@@ -1,0 +1,10 @@
+key: minicpm_v_ollama
+family: ollama
+hf_id: minicpm-v:latest               # already pulled
+dtype: null
+device_map: null
+coord_space: norm_1000             # MiniCPM-V outputs <box> coords in [0,1000]
+supports_attention_capture: false
+api:
+  base_url: http://localhost:11434
+  timeout: 120

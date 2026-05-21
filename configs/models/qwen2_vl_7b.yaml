@@ -1,0 +1,7 @@
+key: qwen2_vl_7b
+family: qwen2_vl
+hf_id: Qwen/Qwen2-VL-7B-Instruct
+dtype: bfloat16
+device_map: auto
+coord_space: pixel                 # Qwen2-VL-7B-Instruct (base) emits pixel coords like Qwen2.5
+supports_attention_capture: false  # image-token span unverified for Qwen2-VL base

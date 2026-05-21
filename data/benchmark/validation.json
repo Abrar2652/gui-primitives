@@ -1,0 +1,22 @@
+{
+  "n_items": 994,
+  "issues": [],
+  "per_primitive": {
+    "rel_pos_vertical": 142,
+    "proximity": 142,
+    "alignment": 142,
+    "occlusion": 142,
+    "containment": 142,
+    "rel_pos_horizontal": 142,
+    "list_ordinal": 142
+  },
+  "chance_levels": {
+    "rel_pos_horizontal": 0.5,
+    "rel_pos_vertical": 0.5,
+    "containment": 0.5,
+    "list_ordinal": 0.2,
+    "alignment": 0.5,
+    "proximity": 0.5,
+    "occlusion": 0.5
+  }
+}

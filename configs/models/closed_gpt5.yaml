@@ -1,0 +1,11 @@
+key: closed_gpt5
+family: closed_api
+hf_id: gpt-5                       # OpenAI's GPT-5 reasoning model (max_completion_tokens API)
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  provider: openai
+  env_key: OPENAI_API_KEY
+  max_items: 2000

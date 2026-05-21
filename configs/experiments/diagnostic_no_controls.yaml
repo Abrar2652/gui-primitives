@@ -1,0 +1,9 @@
+inherit: diagnostic.yaml
+name: diagnostic
+description: Per-primitive failure profiling, skipping shortcut controls
+             (useful when controls already exist for another model in the same run).
+controls:
+  run_text_only: false
+  run_shuffled: false
+  run_blur: false
+  run_position_shift: false

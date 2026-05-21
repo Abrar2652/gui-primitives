@@ -1,0 +1,11 @@
+key: closed_claude_haiku
+family: closed_api
+hf_id: claude-haiku-4-5-20251001    # Anthropic latest Haiku-tier vision-capable
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  provider: anthropic
+  env_key: ANTHROPIC_API_KEY
+  max_items: 2000

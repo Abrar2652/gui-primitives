@@ -1,0 +1,7 @@
+key: internvl3_8b
+family: internvl
+hf_id: OpenGVLab/InternVL3-8B
+dtype: bfloat16
+device_map: auto
+coord_space: pixel               # InternVL3 emits pixel-space coords with our prompt
+supports_attention_capture: false   # image-token span unverified for InternVL — see hf_vlm.py / CLAUDE.md §7

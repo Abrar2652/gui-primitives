@@ -1,0 +1,11 @@
+key: closed_claude_sonnet
+family: closed_api
+hf_id: claude-sonnet-4-6           # Anthropic Sonnet 4.6 (vision-capable)
+dtype: null
+device_map: null
+coord_space: pixel
+supports_attention_capture: false
+api:
+  provider: anthropic
+  env_key: ANTHROPIC_API_KEY
+  max_items: 2000                  # caps total inference calls; 994 GUI-Prim + 1581 SS-Pro share this
