@@ -16,15 +16,15 @@ data/ui_vision/
 gui-primitives-data/
 
 # Generated artefacts (regenerable; keep figs + analysis JSONs only)
-runs/diagnostic/*/diagnostic.jsonl
-runs/diagnostic/*/iv_*.jsonl
-runs/diagnostic/*/screenspot.jsonl
-runs/diagnostic/*/control_*.jsonl
-runs/diagnostic/*/controls/
-runs/diagnostic/*/som_imgs/
-runs/diagnostic/*/*.log
-runs/diagnostic/*/manifest.json
-runs/diagnostic/_dropped_models/
+# runs/diagnostic/*/diagnostic.jsonl
+# runs/diagnostic/*/iv_*.jsonl
+# runs/diagnostic/*/screenspot.jsonl
+# runs/diagnostic/*/control_*.jsonl
+# runs/diagnostic/*/controls/
+# runs/diagnostic/*/som_imgs/
+# runs/diagnostic/*/*.log
+# runs/diagnostic/*/manifest.json
+# runs/diagnostic/_dropped_models/
 
 # Editor + IDE
 .idea/
