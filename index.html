@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GUI-PRIMITIVES: Diagnosing Spatial Reasoning Failures in Vision-Language GUI Grounding</title>
+<meta name="description" content="A minimal-pair benchmark showing that GUI grounding models fail mostly by clicking neither candidate, not by choosing the wrong one.">
+
+<!-- Open Graph -->
+<meta property="og:title" content="GUI-PRIMITIVES (EMNLP 2026)">
+<meta property="og:description" content="Where do GUI-grounding models actually click? Mostly: neither candidate.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* palette: cool "interface graphite" + one signal color for the target */
+  --ink:#16181d;          /* near-black text */
+  --ink-soft:#4a4f5a;     /* secondary text */
+  --line:#e3e5ea;         /* hairlines */
+  --paper:#fbfbfa;        /* page */
+  --panel:#ffffff;        /* cards */
+  --target:#1f8a5b;       /* the "correct candidate" green, from the paper's gold-box convention */
+  --distractor:#c4483a;   /* the contrastive candidate */
+  --neither:#8b8f99;      /* off-candidate clicks: the story */
+  --accent:#2f6df0;       /* links / focus */
+  --radius:14px;
+  --maxw:940px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Inter",system-ui,sans-serif;
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+/* ---------- header ---------- */
+header{padding:64px 0 8px;text-align:center}
+.venue{
+  font:500 13px/1 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--target);margin-bottom:22px;display:inline-block;
+  border:1px solid color-mix(in srgb,var(--target) 40%,var(--line));
+  padding:6px 12px;border-radius:100px;
+}
+h1{
+  font-family:"Newsreader",Georgia,serif;font-weight:500;
+  font-size:clamp(30px,5vw,50px);line-height:1.08;letter-spacing:-.01em;
+  margin:0 auto 6px;max-width:820px;
+}
+h1 .mono{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:.82em;letter-spacing:-.02em}
+.subtitle{font-size:clamp(17px,2.4vw,21px);color:var(--ink-soft);max-width:640px;margin:14px auto 0;font-weight:400}
+
+/* authors */
+.authors{margin:30px auto 6px;max-width:760px;font-size:16.5px}
+.authors .name{white-space:nowrap}
+.authors sup{color:var(--accent);font-size:.75em;padding-left:1px}
+.affil{color:var(--ink-soft);font-size:14.5px;margin-top:8px}
+.note-anon{color:var(--neither);font-size:13px;margin-top:6px;font-style:italic}
+
+/* link buttons */
+.links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:30px 0 8px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:100px;font-weight:500;font-size:15px;
+  background:var(--ink);color:#fff;border:1px solid var(--ink);transition:transform .12s ease,background .12s ease;
+}
+.btn:hover{text-decoration:none;transform:translateY(-1px);background:#000}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:#fff;border-color:var(--ink-soft)}
+.btn svg{width:16px;height:16px;fill:currentColor}
+
+/* ---------- hero figure ---------- */
+.hero{margin:52px 0 8px}
+.figcard{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 24px 20px;box-shadow:0 1px 2px rgba(20,24,29,.04),0 8px 24px rgba(20,24,29,.05);
+}
+.figcard h2{
+  font-family:"Newsreader",serif;font-weight:500;font-size:23px;margin:0 0 4px;letter-spacing:-.01em;
+}
+.figcard .lede{color:var(--ink-soft);font-size:15.5px;margin:0 0 18px;max-width:600px}
+.plot-row{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center}
+@media(max-width:720px){.plot-row{grid-template-columns:1fr;gap:20px}}
+#scatter{width:100%;height:auto;display:block;border-radius:10px;background:#f7f8fa;border:1px solid var(--line)}
+.legend{display:flex;flex-direction:column;gap:14px;font-size:14.5px}
+.legend .row{display:flex;align-items:flex-start;gap:11px}
+.swatch{width:14px;height:14px;border-radius:4px;margin-top:3px;flex:none}
+.swatch.t{background:var(--target)}
+.swatch.d{background:var(--distractor)}
+.swatch.n{background:var(--neither)}
+.legend .k{font-weight:600}
+.legend .v{color:var(--ink-soft);display:block;font-size:13px;margin-top:1px}
+.controls{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.chip{
+  font:500 13px/1 "Inter";padding:8px 13px;border-radius:100px;cursor:pointer;
+  background:#fff;border:1px solid var(--line);color:var(--ink-soft);transition:all .12s;
+}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip:hover{border-color:var(--ink-soft)}
+.readout{margin-top:14px;font-size:14.5px;color:var(--ink);min-height:1.5em}
+.readout b{color:var(--target)}
+.readout .neither-n{color:var(--neither);font-weight:600}
+
+/* ---------- generic section ---------- */
+section{padding:52px 0}
+.eyebrow{
+  font:500 12px/1 "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--neither);margin-bottom:14px;
+}
+h2.sec{font-family:"Newsreader",serif;font-weight:500;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.01em;margin:0 0 18px}
+.abstract-body{font-size:17.5px;line-height:1.72;color:var(--ink)}
+.abstract-body p{margin:0 0 16px}
+
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin:8px 0}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--panel);padding:22px 18px;text-align:center}
+.stat .num{font-family:"Newsreader",serif;font-size:30px;font-weight:500;letter-spacing:-.01em}
+.stat .lab{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.4}
+
+/* per-primitive table */
+.tbl{width:100%;border-collapse:collapse;font-size:15px;margin-top:4px}
+.tbl th,.tbl td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.tbl th{font:600 12.5px/1 "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+.tbl td.prim{font-family:"JetBrains Mono",monospace;font-size:13.5px}
+.tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:8px;border-radius:100px;background:#eef0f3;overflow:hidden;min-width:90px}
+.bar>span{position:absolute;inset:0 auto 0 0;border-radius:100px}
+.tag{font:500 11px/1 "Inter";padding:4px 9px;border-radius:100px;white-space:nowrap}
+.tag.res{background:color-mix(in srgb,var(--target) 14%,#fff);color:var(--target)}
+.tag.chance{background:color-mix(in srgb,var(--distractor) 12%,#fff);color:var(--distractor)}
+.tag.rule{background:#f0f1f4;color:var(--ink-soft)}
+.tbl-note{font-size:13px;color:var(--ink-soft);margin-top:12px}
+
+/* findings cards */
+.finds{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+@media(max-width:680px){.finds{grid-template-columns:1fr}}
+.find{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px 20px}
+.find .n{font:500 13px/1 "JetBrains Mono",monospace;color:var(--neither);letter-spacing:.1em}
+.find h3{font-family:"Newsreader",serif;font-weight:500;font-size:20px;margin:10px 0 8px;letter-spacing:-.01em}
+.find p{margin:0;font-size:15px;color:var(--ink-soft);line-height:1.6}
+
+/* bibtex */
+.bibwrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.bibhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.bibhead span{font:600 12.5px/1 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.copybtn{font:500 13px/1 "Inter";padding:7px 13px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.copybtn:hover{border-color:var(--ink-soft)}
+pre.bib{margin:0;padding:18px 16px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.6;color:var(--ink)}
+
+footer{padding:44px 0 60px;text-align:center;color:var(--ink-soft);font-size:13.5px;border-top:1px solid var(--line);margin-top:20px}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="venue">EMNLP 2026 · Main Conference</span>
+    <h1>GUI-<span class="mono">Primitives</span>: Diagnosing Spatial Reasoning Failures in Vision-Language GUI Grounding</h1>
+    <p class="subtitle">When a computer-use agent clicks the wrong place, which elementary spatial skill actually broke?</p>
+
+    <!-- ==== AUTHORS (from camera-ready) ==== -->
+    <div class="authors">
+      <span class="name">Md Abrar Jahin<sup>1,2,&dagger;</sup></span> &nbsp;·&nbsp;
+      <span class="name">Md Rizwan Parvez<sup>3,&dagger;</sup></span>
+      <div class="affil"><sup>1</sup>University of Southern California &nbsp;·&nbsp; <sup>2</sup>USC Information Sciences Institute &nbsp;·&nbsp; <sup>3</sup>Qatar Computing Research Institute (QCRI)</div>
+      <div class="affil"><a href="mailto:jahin@usc.edu">jahin@usc.edu</a> &nbsp;·&nbsp; <a href="mailto:mparvez@hbku.edu.qa">mparvez@hbku.edu.qa</a> &nbsp;&nbsp;<span style="color:var(--neither)"><sup>&dagger;</sup>corresponding authors</span></div>
+    </div>
+    <!-- ==== /AUTHORS ==== -->
+
+    <nav class="links" aria-label="Paper resources">
+      <!-- ==== EDIT LINK HREFS HERE (currently placeholders) ==== -->
+      <a class="btn" href="#" aria-label="Read the paper PDF">
+        <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5z"/></svg>
+        Paper (arXiv)
+      </a>
+      <a class="btn ghost" href="#" aria-label="Read on ACL Anthology">
+        <svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5zm0 7.2L4.8 6 12 4 19.2 6 12 9.2zM2 12l10 5 10-5v4l-10 5-10-5v-4z"/></svg>
+        ACL Anthology
+      </a>
+      <a class="btn ghost" href="https://github.com/Abrar2652/gui-primitives" aria-label="View code on GitHub">
+        <svg viewBox="0 0 24 24"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-1.9c-2.9.6-3.5-1.3-3.5-1.3-.5-1.2-1.2-1.5-1.2-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.3-.3-4.7-1.2-4.7-5.1 0-1.1.4-2 1.1-2.7-.1-.3-.5-1.4.1-2.8 0 0 .9-.3 2.9 1a10 10 0 0 1 5.2 0c2-1.3 2.9-1 2.9-1 .6 1.4.2 2.5.1 2.8.7.7 1.1 1.6 1.1 2.7 0 3.9-2.4 4.8-4.7 5.1.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+        Code
+      </a>
+      <a class="btn ghost" href="https://huggingface.co/datasets/kagnlp/gui-primitives/" aria-label="Download the benchmark data on HuggingFace">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17l-4.7-5.3 1.4-1.4L12 13.6V3h0zM5 19h14v2H5z"/></svg>
+        Benchmark data
+      </a>
+      <!-- ==== /LINKS ==== -->
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO: the signature interactive ============ -->
+<div class="wrap hero">
+  <div class="figcard">
+    <h2>Where do the models actually click?</h2>
+    <p class="lede">Every instruction points between two candidates: the <b style="color:var(--target)">target</b> and its contrastive <b style="color:var(--distractor)">rival</b>. Across 18,886 predictions, the click usually lands on <b style="color:var(--neither)">neither</b>. Pick a primitive:</p>
+
+    <div class="plot-row">
+      <svg id="scatter" viewBox="0 0 400 300" role="img" aria-label="Scatter of model click locations relative to the two candidate boxes"></svg>
+      <div class="legend">
+        <div class="row"><span class="swatch t"></span><div><span class="k">Target candidate</span><span class="v">the element the instruction names</span></div></div>
+        <div class="row"><span class="swatch d"></span><div><span class="k">Contrastive rival</span><span class="v">the twin's answer, the "wrong" one</span></div></div>
+        <div class="row"><span class="swatch n"></span><div><span class="k">Neither</span><span class="v">click lands outside both boxes</span></div></div>
+      </div>
+    </div>
+
+    <div class="controls" id="chips" role="group" aria-label="Choose a spatial primitive"></div>
+    <div class="readout" id="readout"></div>
+  </div>
+</div>
+
+<!-- ============ stat strip ============ -->
+<section class="wrap" style="padding-top:34px">
+  <div class="stats">
+    <div class="stat"><div class="num">994</div><div class="lab">items · 497 contrastive pairs</div></div>
+    <div class="stat"><div class="num">19</div><div class="lab">vision-language models</div></div>
+    <div class="stat"><div class="num">7</div><div class="lab">elementary spatial relations</div></div>
+    <div class="stat"><div class="num">32%</div><div class="lab">best strict accuracy</div></div>
+  </div>
+</section>
+
+<!-- ============ pair explainer ============ -->
+<section class="wrap" style="padding-top:44px">
+  <div class="eyebrow">How the benchmark works</div>
+  <h2 class="sec">One screenshot, one word flipped</h2>
+  <div class="figcard" style="padding-top:22px">
+    <p class="lede" style="margin-bottom:16px">Every item has a twin. The screenshot and anchor stay fixed; the relation expression changes; the correct target moves to the other candidate. A model that always clicks the salient element scores one twin and fails the other, so its pair-level score is zero. The instructions below are a real pair from the benchmark (pair 58, a UI-Vision toolbar). Try it:</p>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="chip" id="twinA" aria-pressed="true">Twin A</button>
+      <button class="chip" id="twinB" aria-pressed="false">Twin B</button>
+    </div>
+
+    <div class="plot-row" style="align-items:start">
+      <svg id="pairsvg" viewBox="0 0 400 210" role="img" aria-label="Mock toolbar showing how the target flips between twins"></svg>
+      <div>
+        <div style="font:500 12px/1 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--neither);margin-bottom:8px">Instruction</div>
+        <p id="pairInstr" style="font-family:'Newsreader',serif;font-size:20px;line-height:1.45;margin:0 0 14px;min-height:3.6em"></p>
+        <p id="pairNote" style="font-size:14px;color:var(--ink-soft);margin:0"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ abstract ============ -->
+<section class="wrap">
+  <div class="eyebrow">Abstract</div>
+  <h2 class="sec">The failure is finding a candidate, not choosing one</h2>
+  <div class="abstract-body">
+    <p>Computer-use agents ground natural-language instructions in screenshots to locate interface elements, yet existing benchmarks do not isolate whether models bind relational language to the correct element. We introduce <b>GUI-Primitives</b>, a 994-item benchmark of contrastive instruction pairs over seven spatial relations. Each pair holds the screenshot and anchor fixed while changing the relation expression, so the correct target moves between two designated candidates. Five annotators validate a 196-item subset (Fleiss &kappa; = 0.94 for well-formedness, &kappa; = 0.79 for target selection) and select the instruction-consistent candidate on 96.9% of retained items.</p>
+    <p>Nineteen vision-language models reach at most 32% strict point-in-box accuracy. Because models emit unconstrained coordinates, we classify each prediction by the candidate region it falls in. Predictions fall outside <em>both</em> candidates on 60-92% of items. Conditional on landing on a candidate, target selection reaches 0.82-0.90 for horizontal position, vertical position, proximity, and list ordinal, but does not differ significantly from 0.50 for containment and occlusion. <b>Most failures reflect candidate localization, not relation understanding.</b></p>
+    <p>Benchmark accuracy correlates with ScreenSpot-Pro grounding across ten models (Spearman ρ = +0.74, p = 0.015). Marking the two designated candidates raises selection accuracy by 35-57 percentage points: an oracle diagnostic that supplies the candidate set, not a deployable method.</p>
+  </div>
+</section>
+
+<!-- ============ per-primitive table ============ -->
+<section class="wrap">
+  <div class="eyebrow">Candidate-level decomposition</div>
+  <h2 class="sec">Seven relations, two very different failure modes</h2>
+  <table class="tbl">
+    <thead>
+      <tr><th>Primitive</th><th>Off-candidate</th><th style="text-align:right">Target selection*</th><th></th></tr>
+    </thead>
+    <tbody id="tblbody"></tbody>
+  </table>
+  <p class="tbl-note">*Forced-choice accuracy among predictions that land on a candidate. 0.50 is the two-candidate reference level, not the chance level of unconstrained clicking. Alignment is sensitive to the inclusion rule (0.728 strict, n=173; 0.529 permissive, n=1021) and we do not interpret it.</p>
+</section>
+
+<!-- ============ real vs synthetic ============ -->
+<section class="wrap">
+  <div class="eyebrow">Real vs. synthetic screenshots</div>
+  <h2 class="sec">On real desktop apps, it gets worse</h2>
+  <div class="plot-row" style="align-items:start;gap:32px">
+    <div>
+      <p style="margin:0 0 14px">The benchmark draws from two sources: <b>290 real items</b> mined from UI-Vision screenshots (VS Code, Office, GRASS GIS, file managers, video editors) and <b>704 synthetic items</b> rendered with exact ground truth, the only way to obtain containment and occlusion cleanly.</p>
+      <p style="margin:0 0 14px">On real screenshots, <b style="color:var(--neither)">96.2% of predictions land on neither candidate</b>, pooled over all 19 models. Among the few clicks that do reach a candidate, the target is still chosen on 0.75 of them (0.91 for GPT-5 and Claude Opus 4.7). So the near-zero accuracy on real GUIs is a search failure, and the relation word still carries signal when search succeeds.</p>
+      <p style="margin:0;font-size:14px;color:var(--ink-soft)">All results in the paper are reported separately by source. In 253 of 497 pairs the instruction template also varies lexically between twins (verb, head noun, anchor quoting); this variation is balanced across relation terms and cannot be exploited as a shortcut.</p>
+    </div>
+    <div>
+      <div style="font:500 12px/1 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--neither);margin-bottom:10px">Items per primitive, by source</div>
+      <div id="srcbars"></div>
+      <div style="display:flex;gap:16px;margin-top:10px;font-size:13px;color:var(--ink-soft)">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent);margin-right:6px"></span>real (UI-Vision)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#c9cdd6;margin-right:6px"></span>synthetic</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ findings ============ -->
+<section class="wrap">
+  <div class="eyebrow">What the paper establishes</div>
+  <h2 class="sec">Four results</h2>
+  <div class="finds">
+    <div class="find"><div class="n">01</div><h3>Localization dominates</h3><p>On 60-92% of items the click lands outside both candidates. The headline "below-chance" accuracy is off-candidate clicking, not a preference for the wrong element.</p></div>
+    <div class="find"><div class="n">02</div><h3>Two relations carry no signal</h3><p>Even when a model commits to a candidate, containment and occlusion split at 0.548 and 0.554, indistinguishable from a coin flip between the two boxes.</p></div>
+    <div class="find"><div class="n">03</div><h3>The diagnostic transfers</h3><p>Benchmark accuracy tracks downstream ScreenSpot-Pro grounding (ρ = +0.74 across ten models). We report this as an exploratory association at n = 10.</p></div>
+    <div class="find"><div class="n">04</div><h3>Marking is an upper bound</h3><p>Oracle two-candidate Set-of-Mark lifts GPT-5 from 30% to 87% by handing the model both candidates. It measures discrimination given perfect localization, not a fix.</p></div>
+  </div>
+</section>
+
+<!-- ============ bibtex ============ -->
+<section class="wrap">
+  <div class="eyebrow">Cite</div>
+  <h2 class="sec">BibTeX</h2>
+  <div class="bibwrap">
+    <div class="bibhead"><span>bibtex</span><button class="copybtn" id="copybib">Copy</button></div>
+<pre class="bib" id="bibtext">@inproceedings{jahin2026guiprimitives,
+  title     = {{GUI-PRIMITIVES}: Diagnosing Spatial Reasoning Failures
+               in Vision-Language {GUI} Grounding},
+  author    = {Jahin, Md Abrar and Parvez, Md Rizwan},
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods
+               in Natural Language Processing (EMNLP)},
+  year      = {2026}
+}</pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    GUI-Primitives · EMNLP 2026 &nbsp;·&nbsp; <a href="https://github.com/Abrar2652/gui-primitives">Code</a> &nbsp;·&nbsp; <a href="https://huggingface.co/datasets/kagnlp/gui-primitives/">Dataset</a>
+    <!-- Paper (arXiv) and ACL Anthology buttons above are still href="#"; fill them when the pages exist. -->
+  </div>
+</footer>
+
+<script>
+/* ---------- data: real per-primitive candidate decomposition ---------- */
+const DATA = {
+  "rel-pos-horizontal":{label:"horizontal",target:14.8,distractor:1.6,neither:83.2,invalid:0.4,fc:0.903,n:443,resolved:true},
+  "rel-pos-vertical"  :{label:"vertical",  target:16.1,distractor:1.7,neither:79.2,invalid:3.0,fc:0.904,n:481,resolved:true},
+  "proximity"         :{label:"proximity", target:6.1, distractor:0.7,neither:92.4,invalid:0.7,fc:0.891,n:184,resolved:true},
+  "list-ordinal"      :{label:"list ordinal",target:31.1,distractor:6.8,neither:60.3,invalid:1.8,fc:0.820,n:1022,resolved:true},
+  "alignment"         :{label:"alignment", target:4.7, distractor:1.7,neither:92.5,invalid:1.1,fc:0.728,n:173,resolved:"rule"},
+  "containment"       :{label:"containment",target:3.2,distractor:2.6,neither:91.9,invalid:2.3,fc:0.548,n:157,resolved:false},
+  "occlusion"         :{label:"occlusion", target:6.1, distractor:4.9,neither:88.1,invalid:0.8,fc:0.554,n:298,resolved:false},
+};
+const ORDER = Object.keys(DATA);
+let current = "containment"; // open on the most striking case
+
+/* ---------- scatter geometry ---------- */
+const svg = document.getElementById('scatter');
+const W=400,H=300, PAD=26;
+const tBox={x:70,y:112,w:74,h:44};   // target box
+const dBox={x:256,y:112,w:74,h:44};  // distractor box
+
+function rand(seed){ // deterministic PRNG so layout is stable per primitive
+  let s=seed%2147483647; if(s<=0)s+=2147483646;
+  return ()=>((s=s*16807%2147483647)-1)/2147483646;
+}
+function mulberrySeed(str){let h=1779033703;for(const c of str){h=Math.imul(h^c.charCodeAt(0),3432918353);h=h<<13|h>>>19}return (h>>>0)}
+
+function draw(key){
+  const d=DATA[key]; const rnd=rand(mulberrySeed(key)+7);
+  const N=150; // sample dots
+  const nT=Math.round(N*d.target/100), nD=Math.round(N*d.distractor/100), nN=N-nT-nD;
+  let dots="";
+  const dot=(x,y,cls)=>`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" class="pt ${cls}" fill="${cls==='t'?'var(--target)':cls==='d'?'var(--distractor)':'var(--neither)'}" fill-opacity="${cls==='n'?0.5:0.85}"/>`;
+  const inBox=(b)=>[b.x+3+rnd()*(b.w-6), b.y+3+rnd()*(b.h-6)];
+  for(let i=0;i<nT;i++){const[x,y]=inBox(tBox);dots+=dot(x,y,'t')}
+  for(let i=0;i<nD;i++){const[x,y]=inBox(dBox);dots+=dot(x,y,'d')}
+  let placed=0,guard=0;
+  while(placed<nN && guard++<4000){
+    const x=PAD+rnd()*(W-2*PAD), y=PAD+rnd()*(H-2*PAD);
+    const inT=x>tBox.x&&x<tBox.x+tBox.w&&y>tBox.y&&y<tBox.y+tBox.h;
+    const inD=x>dBox.x&&x<dBox.x+dBox.w&&y>dBox.y&&y<dBox.y+dBox.h;
+    if(inT||inD)continue;
+    dots+=dot(x,y,'n');placed++;
+  }
+  const boxStyle='fill="none" stroke-width="2"';
+  svg.innerHTML=`
+    <rect x="0" y="0" width="${W}" height="${H}" fill="#f7f8fa"/>
+    <rect x="${tBox.x}" y="${tBox.y}" width="${tBox.w}" height="${tBox.h}" rx="7" ${boxStyle} stroke="var(--target)"/>
+    <rect x="${dBox.x}" y="${dBox.y}" width="${dBox.w}" height="${dBox.h}" rx="7" ${boxStyle} stroke="var(--distractor)" stroke-dasharray="5 4"/>
+    <text x="${tBox.x+tBox.w/2}" y="${tBox.y-9}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--target)">target</text>
+    <text x="${dBox.x+dBox.w/2}" y="${dBox.y+dBox.h+18}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--distractor)">rival</text>
+    ${dots}
+  `;
+  // readout
+  const r=document.getElementById('readout');
+  if(d.resolved===true){
+    r.innerHTML=`<span class="neither-n">${d.neither.toFixed(0)}% land on neither.</span> Of the clicks that reach a candidate, <b>${(d.fc*100).toFixed(0)}%</b> hit the target (n=${d.n}). The relation word is understood; the model just can't localize.`;
+  }else if(d.resolved===false){
+    r.innerHTML=`<span class="neither-n">${d.neither.toFixed(0)}% land on neither.</span> Even among committed clicks, target vs. rival splits <b style="color:var(--distractor)">${(d.fc*100).toFixed(1)}%</b> (n=${d.n}), statistically indistinguishable from 0.50. The relation word carries no signal here.`;
+  }else{
+    r.innerHTML=`<span class="neither-n">${d.neither.toFixed(0)}% land on neither.</span> Committed-click accuracy is rule-dependent (0.728 strict, n=173; 0.529 permissive); we report both and draw no conclusion.`;
+  }
+}
+
+/* ---------- chips ---------- */
+const chips=document.getElementById('chips');
+ORDER.forEach(key=>{
+  const b=document.createElement('button');
+  b.className='chip';b.textContent=DATA[key].label;
+  b.setAttribute('aria-pressed', key===current);
+  b.onclick=()=>{current=key;[...chips.children].forEach(c=>c.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');draw(key)};
+  chips.appendChild(b);
+});
+draw(current);
+
+/* ---------- table ---------- */
+const tb=document.getElementById('tblbody');
+ORDER.forEach(key=>{
+  const d=DATA[key];
+  const tr=document.createElement('tr');
+  const barW=Math.min(100,d.fc*100);
+  const barColor=d.resolved===true?'var(--target)':d.resolved===false?'var(--distractor)':'var(--neither)';
+  const tag=d.resolved===true?'<span class="tag res">relation understood</span>'
+          :d.resolved===false?'<span class="tag chance">at chance</span>'
+          :'<span class="tag rule">rule-dependent</span>';
+  tr.innerHTML=`
+    <td class="prim">${key}</td>
+    <td class="num" style="color:var(--neither);font-weight:600">${d.neither.toFixed(0)}%</td>
+    <td class="num">${d.fc.toFixed(3)}<span style="color:var(--ink-soft);font-size:12px"> · n=${d.n}</span></td>
+    <td><div style="display:flex;align-items:center;gap:10px">
+      <div class="bar" style="flex:1"><span style="width:${barW}%;background:${barColor}"></span></div>${tag}
+    </div></td>`;
+  tb.appendChild(tr);
+});
+
+/* ---------- pair explainer: Figure 2 as an interaction ---------- */
+const PW=400,PH=210;
+const icons=[
+  {x:40,label:""},{x:92,label:""},{x:144,label:""},
+  {x:196,label:"break\ndebugger",anchor:true},
+  {x:248,label:""},{x:300,label:""},{x:352,label:""}
+];
+const IW=40,IH=40,IY=84;
+const TWIN={
+  A:{targetIdx:4,instr:'\u201CClick the element to the <b style="color:var(--target)">right</b> of the break debugger.\u201D',
+     note:'Twin A: the target is the icon just right of the anchor. Its left-hand neighbor is the contrastive rival, the answer to Twin B.'},
+  B:{targetIdx:2,instr:'\u201CSelect the control to the <b style="color:var(--target)">left</b> of \u2018break debugger\u2019.\u201D',
+     note:'Same screenshot, relation flipped: now the left-hand icon is the target and the right-hand one is the rival. An answer prior passes one twin and fails the other.'}
+};
+let twin='A';
+function drawPair(){
+  const t=TWIN[twin];
+  const rivalIdx = twin==='A' ? 2 : 4;
+  let g='';
+  icons.forEach((ic,i)=>{
+    const isAnchor=!!ic.anchor, isT=i===t.targetIdx, isR=i===rivalIdx;
+    const fill=isAnchor?'#3b4252':'#c9cdd6';
+    g+=`<rect x="${ic.x-IW/2}" y="${IY}" width="${IW}" height="${IH}" rx="8" fill="${fill}"/>`;
+    if(isAnchor){
+      g+=`<text x="${ic.x}" y="${IY+IH+22}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="var(--ink-soft)">break debugger</text>`;
+      g+=`<line x1="${ic.x}" y1="${IY+IH+2}" x2="${ic.x}" y2="${IY+IH+11}" stroke="var(--ink-soft)" stroke-width="1.2"/>`;
+    }
+    if(isT){
+      g+=`<rect x="${ic.x-IW/2-6}" y="${IY-6}" width="${IW+12}" height="${IH+12}" rx="11" fill="none" stroke="var(--target)" stroke-width="2.5"/>`;
+      g+=`<text x="${ic.x}" y="${IY-16}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--target)">target</text>`;
+    }
+    if(isR){
+      g+=`<rect x="${ic.x-IW/2-6}" y="${IY-6}" width="${IW+12}" height="${IH+12}" rx="11" fill="none" stroke="var(--distractor)" stroke-width="2" stroke-dasharray="5 4"/>`;
+      g+=`<text x="${ic.x}" y="${IY-16}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--distractor)">rival</text>`;
+    }
+  });
+  document.getElementById('pairsvg').innerHTML=
+    `<rect x="0" y="0" width="${PW}" height="${PH}" rx="10" fill="#f7f8fa"/>
+     <rect x="14" y="20" width="${PW-28}" height="14" rx="4" fill="#e7e9ee"/>
+     <rect x="14" y="44" width="120" height="10" rx="3" fill="#eef0f3"/>${g}`;
+  document.getElementById('pairInstr').innerHTML=t.instr;
+  document.getElementById('pairNote').textContent=t.note;
+  document.getElementById('twinA').setAttribute('aria-pressed',twin==='A');
+  document.getElementById('twinB').setAttribute('aria-pressed',twin==='B');
+}
+document.getElementById('twinA').onclick=()=>{twin='A';drawPair()};
+document.getElementById('twinB').onclick=()=>{twin='B';drawPair()};
+drawPair();
+
+/* ---------- real vs synthetic bars (counts from items.jsonl) ---------- */
+const SRC = [
+  ["proximity",84,58],["rel-pos-horizontal",68,74],["alignment",66,76],
+  ["rel-pos-vertical",48,94],["list-ordinal",24,118],["containment",0,142],["occlusion",0,142]
+];
+const sb=document.getElementById('srcbars');
+sb.innerHTML=SRC.map(([p,r,syn])=>{
+  const tot=r+syn, rw=(r/tot*100).toFixed(1);
+  return `<div style="margin-bottom:9px">
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">
+      <span style="font-family:'JetBrains Mono',monospace">${p}</span>
+      <span style="color:var(--ink-soft)">${r} / ${syn}</span>
+    </div>
+    <div class="bar" style="height:10px"><span style="width:${rw}%;background:var(--accent)"></span><span style="left:${rw}%;right:0;width:auto;background:#c9cdd6"></span></div>
+  </div>`;
+}).join('');
+
+/* ---------- copy bibtex ---------- */
+document.getElementById('copybib').onclick=async()=>{
+  const t=document.getElementById('bibtext').innerText;
+  try{await navigator.clipboard.writeText(t);const b=document.getElementById('copybib');b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1400);}catch(e){}
+};
+</script>
+</body>
+</html>
