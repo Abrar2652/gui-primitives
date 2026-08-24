@@ -1,9 +1,6 @@
-# GUI-Primitives — Reproducibility Package
+# GUI-Primitives: Reproducibility Package
 
-This release contains everything needed to reproduce the headline results of
-our paper **"GUI-Primitives: A Diagnostic Benchmark and
-Training-Free Interventions for Spatial-Primitive Failures in VLM-based
-Computer-Use Agents."**
+This release contains everything needed to reproduce the headline results of our paper **"GUI-Primitives: Diagnosing Spatial Reasoning Failures in Vision-Language GUI Grounding."**
 
 ## What this package contains
 
